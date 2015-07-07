@@ -1,0 +1,198 @@
+#单例模式的定义
+---
+一个类有且仅有一个实例，并且自行实例化向整个系统提供。  
+
+## 单例模式有三个要点：
+> 1. 这个类只能有一个实例；
+> 2. 必须是自行创建这个实例；
+> 3. 必须是自行向整个系统提供这个实例。
+
+## UML图：
+为了好理解，这是最简单的饿汉模式对应的UML图。  
+静态内部类实现的单例模式，以及枚举类的单例模式和这个图有区别。  
+![image](https://github.com/Sino-Snack/DesignPattern/blob/master/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/images/QQ%E5%9B%BE%E7%89%8720150620123932.png)
+
+
+# 单例模式的简单实现
+---
+假设一个场景：一个教师和一群学生在上课。学生可以问老师问题。教师类用单例模式实现。  
+
+**Teacher.java**
+```java
+public class Teacher {  
+      
+    // 一个私有的、静态的 实例  
+    private static Teacher teacher;  
+      
+    // 私有的构造函数  
+    private Teacher(){};  
+      
+    /** 
+     * 获得实例变量 
+     */  
+    public static Teacher getInstance(){  
+        if(teacher == null){  
+            teacher = new Teacher();  
+        }  
+        // 返回唯一的实例  
+        return teacher;  
+    }  
+      
+    /** 
+     * 回答学生的问题。 
+     */  
+    public String answerQustion(String question){  
+        return "this is the answer!";  
+    }  
+}  
+```
+
+**Student.java**
+```java
+public class Student {  
+  
+    /** 
+     * 向老师提问。 
+     */  
+    public void askTeacher(Teacher teacher, String question){  
+        System.out.println(teacher.answerQustion(question));  
+    }  
+      
+}
+```
+
+**Client.java**
+```java
+public class Client {  
+  
+    public static void main(String[] args) {  
+        Student student = new Student();          
+        // 通过getInstance获得实例。  
+        student.askTeacher(Teacher.getInstance(), "this is a question!");  
+        test();  
+    }  
+      
+    /** 
+     * 测试多次获得的实例是否为同一个实例。 
+     */  
+    public static void test(){  
+        Teacher t1 = Teacher.getInstance();  
+        Teacher t2 = Teacher.getInstance();  
+        System.out.println("t1地址为：" + t1);  
+        System.out.println("t2地址为：" + t2);  
+    }  
+}  
+```
+
+输出结果：
+// 插入图片
+
+###总结
+单例模式的核心，就是把构造函数私有化，对内创建一个实例，对外提供一个静态的方法获得实例。
+
+
+## 单例模式在Android的应用
+对于工具类来说，他们只需要一个实例就够了。因此，对于某些工具类，我们可以把它作为单例模式来实现。在这里，Utils_Bitmap是一个处理Bitmap的类。
+Utils_Bitmap.java
+```java
+package zhp.demo.singletonpattern;  
+  
+import android.graphics.Bitmap;  
+import android.graphics.drawable.Drawable;  
+  
+public class Utils_Bitmap {  
+    // 单例  
+    private static Utils_Bitmap utils;  
+  
+    // 私有的构造方法  
+    private Utils_Bitmap() {  
+    };  
+  
+    /** 
+     * 供外界获得实例的方法 
+     */  
+    public static Utils_Bitmap getInstance() {  
+        if (utils == null) {  
+            utils = new Utils_Bitmap();  
+        }  
+        return utils;  
+    }  
+      
+    /** 
+     * 从文件中获得bitmap 
+     */  
+    public Bitmap getBitmapFromSD(String path){  
+        // 省略  
+        return null;  
+    }  
+  
+    /** 
+     * 将bitmap转drawable的方法 
+     */  
+    public Drawable getDrawableByBitmap(Bitmap bitmap) {  
+        // 省略  
+        return null;  
+    }  
+  
+    /** 
+     * 将drawable转bitmap的方法 
+     */  
+    public Bitmap getBitmapByDrawable(Drawable drawable) {  
+        // 省略  
+        return null;  
+    }  
+  
+    /** 
+     * 让图片变暗的方法 
+     */  
+    public void changeBitmapMoreDark(Bitmap bitmap) {  
+        // 省略  
+    }  
+  
+    /** 
+     * 为图片加上水印的方法 
+     */  
+    public void addWatermarkToBitmap(Bitmap bitmap) {  
+        // 省略  
+    }  
+  
+}
+```
+
+MainActivity.java
+```java
+package zhp.demo.singletonpattern;  
+  
+import android.app.Activity;  
+import android.os.Bundle;  
+import android.view.ViewGroup;  
+import android.widget.ImageView;  
+  
+public class MainActivity extends Activity {  
+  
+    @Override  
+    protected void onCreate(Bundle savedInstanceState) {  
+        super.onCreate(savedInstanceState);  
+        setContentView(R.layout.activity_main);  
+        // 获得背景  
+        ViewGroup view = (ViewGroup) findViewById(android.R.id.content);  
+          
+        // 通过单例模式获得工具的实例  
+        Utils_Bitmap utils = Utils_Bitmap.getInstance();  
+          
+        ImageView imageView = new ImageView(this);  
+        imageView.setImageBitmap(utils.getBitmapFromSD("/scard/a.png"));  
+          
+        // 将imageView加进Activity的视图中  
+        view.addView(imageView);  
+    }  
+      
+}
+```
+
+## 单例模式的优缺点
+**优点：**   
+1. 由于单例模式的对象只有一个实例，减少了内存开销。如果一个类，频繁的创建对象，会对性能有很大的影响。  
+2. 单例模式可以避免对资源的重复占用。  
+**缺点：**  
+扩展困难。
